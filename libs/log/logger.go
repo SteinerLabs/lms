@@ -130,9 +130,12 @@ func (l *Logger) WithContext(ctx context.Context) *Logger {
 	}
 	fields := ctxValue.(map[string]any)
 	logger := l.Logger
+	contextFields := []any{}
 	for k, v := range fields {
-		logger = l.With(k, v)
+		fmt.Println(k, v)
+		contextFields = append(contextFields, k, v)
 	}
+	logger = l.With(contextFields...)
 	return &Logger{
 		logger,
 		l,

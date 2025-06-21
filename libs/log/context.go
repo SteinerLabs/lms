@@ -1,6 +1,8 @@
 package log
 
-import "context"
+import (
+	"context"
+)
 
 // ContextWithValue adds a key-value pair to the context's logWithFields map.
 // If the map is nil, it creates a new map and assigns it to the context.
@@ -14,7 +16,7 @@ func ContextWithValue(ctx context.Context, key string, value any) context.Contex
 		return context.WithValue(ctx, logWithFields, map[string]any{key: value})
 	}
 
-	fields := shallowCopy(ctxValue.(map[string]interface{}))
+	fields := shallowCopy(ctxValue.(map[string]any))
 	fields[key] = value
 
 	return context.WithValue(ctx, logWithFields, fields)
