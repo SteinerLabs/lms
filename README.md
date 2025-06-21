@@ -65,3 +65,38 @@ This project is designed to demonstrate production-grade software engineering pr
 - Finalize documentation including API specs and developer guides
 - Deploy to production-like Kubernetes environment
 - Conduct performance tuning and security audits
+
+## Service Boundaries
+Clear service boundaries are essential to maintain a modular, scalable, and maintainable architecture. For this LMS project, each microservice is responsible for a distinct business capability with minimal overlap:
+
+### Auth Service:
+- Handles user authentication, authorization, session management, and security policies
+- Exposes APIs for login, registration, token validation, and user identity management
+
+### User Service:
+- Manages user profiles, preferences, and user-related metadata
+- Responsible for CRUD operations on user data, separate from authentication concerns
+
+### Course Service:
+- Manages course creation, updates, listing, and enrollment
+- Contains business logic specific to course lifecycle and content management
+
+### Content Delivery Service:
+- Responsible for serving course materials, streaming videos, and managing content availability
+
+### Analytics Service:
+- Collects and processes user interaction data, course usage metrics, and system events to generate insights and reports
+
+### Billing Service:
+- Handles payment processing, subscription management, invoicing, and billing workflows
+
+### Notification Service:
+- Responsible for sending emails, push notifications, and in-app alerts related to user activity and system events
+
+### Progress Service:
+- Tracks individual user progress within courses, manages completion status, and stores related learning metrics
+
+### User Service:
+- Manages user profiles, preferences, and account settings independently from authentication concerns
+
+Each service owns its data and database schema, exposing only necessary APIs or events to other services. This separation supports independent development, deployment, and scaling.
