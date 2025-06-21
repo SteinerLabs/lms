@@ -23,3 +23,25 @@ This project is designed to demonstrate production-grade software engineering pr
 - Milestone 2: Kafka event flow + progress tracking
 - Milestone 3: CI/CD + GitOps pipelines
 - Milestone 4: Frontend integration + public demo
+
+## Tech Stack
+### Backend
+- **Language**: Go
+- **Dependencies**: chi, pgx, sqlc, kafka-go
+
+### Frontend
+- **Langauage**: TypeScript
+- **Dependencies**: Vite, React, React Hook Forms, zod, React Query
+
+### Infra
+- **Tools**: Terraform, Argo CD, Container Images, Kubernetes
+
+## Architecture Principles
+- **Cloud-Native & Containerized:** Designed for Kubernetes deployments with containerized microservices to ensure scalability, resilience, and easy rollouts.
+- **Event-Driven Microservices:** Services communicate asynchronously using Kafka, enabling loose coupling, scalability, and reliable event processing.
+- **Separation of Concerns:** Clear boundaries between services (e.g., auth, courses, users) to maximize maintainability and independent deployability.
+- **CQRS & Event Sourcing (optional):** Command and Query responsibilities are separated to optimize read and write models. Event sourcing ensures auditability and system state reconstruction.
+- **Idempotency & Resilience:** All services are designed to handle retries, failures, and duplicate messages gracefully to achieve eventual consistency.
+- **API-First & Typed Contracts:** APIs are strictly defined and versioned using OpenAPI/Protobuf to guarantee compatibility across services.
+- **Infrastructure as Code & GitOps:** Deployment and configuration are managed declaratively through Git repositories for transparency and reproducibility.
+- **Observability & Monitoring:** Integrated logging, metrics, and tracing provide full visibility into system behavior and support rapid troubleshooting.
