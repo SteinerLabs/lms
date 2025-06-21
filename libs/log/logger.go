@@ -347,33 +347,6 @@ func (l *Logger) Fatal(msg string, args ...any) {
 	os.Exit(1)
 }
 
-// Fatalf logs an error message with the specified format and arguments using the receiver
-// After the message is logged, the program exits with os.Exit(1)
-func (l *Logger) Fatalf(msg string, args ...any) {
-	l.Log(context.Background(), LevelFatal, fmt.Sprintf(msg, args...))
-	os.Exit(1)
-}
-
-// Infof logs an informational message with the specified format and arguments using the receiver
-func (l *Logger) Infof(msg string, args ...any) {
-	l.Info(fmt.Sprintf(msg, args...))
-}
-
-// Errorf logs an error message with the specified format and arguments using the receiver
-func (l *Logger) Errorf(msg string, args ...any) {
-	l.Error(fmt.Sprintf(msg, args...))
-}
-
-// Debugf logs a debug message with the specified format and arguments using the receiver
-func (l *Logger) Debugf(msg string, args ...any) {
-	l.Debug(fmt.Sprintf(msg, args...))
-}
-
-// Warnf logs a warning message with the specified format and arguments using the receiver
-func (l *Logger) Warnf(msg string, args ...any) {
-	l.Warn(fmt.Sprintf(msg, args...))
-}
-
 // WithFields returns a new Logger instance with additional fields added to it.
 // The additional fields are specified in the `fields` parameter as a map[string]any.
 // The method iterates over the `fields` map and calls the `With` method on the original Logger,
