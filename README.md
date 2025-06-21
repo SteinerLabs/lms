@@ -17,13 +17,6 @@ This project is designed to demonstrate production-grade software engineering pr
 - **Scalability-First**: All components designed with horizontal scaling in mind
 - **Debuggability**: Events, logs, and traces are first-class citizens
 
-## Roadmap
-
-- Milestone 1: MVP backend for auth + course service
-- Milestone 2: Kafka event flow + progress tracking
-- Milestone 3: CI/CD + GitOps pipelines
-- Milestone 4: Frontend integration + public demo
-
 ## Tech Stack
 ### Backend
 - **Language**: Go
@@ -45,3 +38,30 @@ This project is designed to demonstrate production-grade software engineering pr
 - **API-First & Typed Contracts:** APIs are strictly defined and versioned using OpenAPI/Protobuf to guarantee compatibility across services.
 - **Infrastructure as Code & GitOps:** Deployment and configuration are managed declaratively through Git repositories for transparency and reproducibility.
 - **Observability & Monitoring:** Integrated logging, metrics, and tracing provide full visibility into system behavior and support rapid troubleshooting.
+
+## Timeline and Milestones
+
+### Phase 1: Project Setup & Basic Architecture (Month 1)
+- Initialize repositories, define module structure
+- Setup development environment, Docker, Kubernetes manifests
+- Implement core backend services scaffold (auth, course service)
+- Setup CI/CD pipelines and GitHub Projects board
+
+### Phase 2: Core Functionality Development (Months 2-3)
+- Implement course creation, listing, and user management APIs
+- Integrate event-driven communication using Kafka
+- Develop frontend MVP with basic user flows
+- Begin implementing authentication and authorization
+
+### Phase 3: Advanced Features & Infrastructure (Months 4-5)
+- Add CQRS and event sourcing support for key services
+- Implement schema validation and versioning with Schema Registry
+- Improve resilience, retry logic, and idempotency handling
+- Enhance frontend with interactive features and responsive design
+- Setup observability: logging, metrics, tracing
+
+### Phase 4: Testing, Documentation & Deployment (Month 6)
+- Complete unit, integration, and end-to-end testing
+- Finalize documentation including API specs and developer guides
+- Deploy to production-like Kubernetes environment
+- Conduct performance tuning and security audits
