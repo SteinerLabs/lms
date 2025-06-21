@@ -300,10 +300,10 @@ func (h *Handler) appendAttr(buf []byte, prefix string, a slog.Attr) []byte {
 
 // New creates a new Logger with all provided Option functions applied
 func New(opts ...Option) *Logger {
-	opt := defaultConfig
+	opt := *defaultConfig
 
 	for _, configFn := range opts {
-		configFn(opt)
+		configFn(&opt)
 	}
 
 	if opt.Json {
@@ -333,7 +333,7 @@ func New(opts ...Option) *Logger {
 		slog.SetDefault(l)
 		return &Logger{Logger: l}
 	} else {
-		h := newHandler(opt)
+		h := newHandler(&opt)
 		l := slog.New(h)
 		slog.SetDefault(l)
 		return &Logger{Logger: l}
