@@ -8,6 +8,6 @@ func wrapMiddleware(mw []Middleware, handler Handler) Handler {
 		if h != nil {
 			handler = h(handler)
 		}
-		return handler
 	}
+	return handler
 }
