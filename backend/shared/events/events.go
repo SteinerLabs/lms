@@ -1,74 +1,45 @@
 package events
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 // Event represents a generic event in the system
-type Event struct {
-	ID         string                 `json:"id"`
-	Type       string                 `json:"type"`
-	Source     string                 `json:"source"`
-	Time       time.Time              `json:"time"`
-	Data       interface{}            `json:"data"`
-	Metadata   EventMetadata          `json:"metadata"`
-}
-
-// EventMetadata contains metadata about the event
-type EventMetadata struct {
-	CorrelationID string `json:"correlation_id"`
-	CausationID   string `json:"causation_id"`
+type Event[T any] struct {
+	ID            string    `json:"id"`
+	TraceID       string    `json:"trace_id"`
+	CorrelationID string    `json:"correlation_id"`
+	CausationID   string    `json:"causation_id"`
+	Source        string    `json:"source"` // Example: auth-service
+	Type          string    `json:"type"`
+	OccurredAt    time.Time `json:"occurred_at"`
+	Data          T         `json:"data"`
 }
 
 // NewEvent creates a new event with the given type, source, and data
-func NewEvent(eventType, source string, data interface{}, correlationID, causationID string) *Event {
+func NewEvent[T any](eventType string, source string, data T, correlationID, causationID string, traceId string) *Event[T] {
 	if correlationID == "" {
 		correlationID = uuid.New().String()
 	}
 	if causationID == "" {
 		causationID = correlationID
 	}
-
-	return &Event{
-		ID:     uuid.New().String(),
-		Type:   eventType,
-		Source: source,
-		Time:   time.Now().UTC(),
-		Data:   data,
-		Metadata: EventMetadata{
-			CorrelationID: correlationID,
-			CausationID:   causationID,
-		},
-	}
-}
-
-// Marshal marshals the event to JSON
-func (e *Event) Marshal() ([]byte, error) {
-	return json.Marshal(e)
-}
-
-// Unmarshal unmarshals the event from JSON
-func Unmarshal(data []byte, dataType interface{}) (*Event, error) {
-	var event Event
-	if err := json.Unmarshal(data, &event); err != nil {
-		return nil, err
+	if traceId == "" {
+		traceId = correlationID
 	}
 
-	// Unmarshal the data field into the provided type
-	dataBytes, err := json.Marshal(event.Data)
-	if err != nil {
-		return nil, err
+	return &Event[T]{
+		ID:            uuid.New().String(),
+		Type:          eventType,
+		Time:          time.Now().UTC(),
+		Data:          data,
+		CorrelationID: correlationID,
+		CausationID:   causationID,
+		TraceID:       traceId,
+		Source:        source,
 	}
-
-	if err := json.Unmarshal(dataBytes, dataType); err != nil {
-		return nil, err
-	}
-
-	event.Data = dataType
-	return &event, nil
 }
 
 // User Events
@@ -108,9 +79,9 @@ type UserLoggedInEvent struct {
 
 // UserLoggedOutEvent represents a user.logout event
 type UserLoggedOutEvent struct {
-	ID        string    `json:"id"`
-	Email     string    `json:"email"`
-	LogoutAt  time.Time `json:"logout_at"`
+	ID       string    `json:"id"`
+	Email    string    `json:"email"`
+	LogoutAt time.Time `json:"logout_at"`
 }
 
 // Course Events
