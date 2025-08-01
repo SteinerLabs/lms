@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/SteinerLabs/lms/libs/log"
 	"github.com/google/uuid"
@@ -11,8 +10,6 @@ import (
 )
 
 type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
-
-var ErrShutdown = errors.New("shutdown initiated")
 
 type App struct {
 	mux     *http.ServeMux
@@ -96,4 +93,24 @@ func (a *App) Handle(method string, group string, path string, handler Handler, 
 
 func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.mux.ServeHTTP(w, r)
+}
+
+func (a *App) Get(group string, path string, handler Handler, mw ...Middleware) {
+	a.Handle(http.MethodGet, group, path, handler, mw...)
+}
+
+func (a *App) Post(group string, path string, handler Handler, mw ...Middleware) {
+	a.Handle(http.MethodPost, group, path, handler, mw...)
+}
+
+func (a *App) Delete(group string, path string, handler Handler, mw ...Middleware) {
+	a.Handle(http.MethodDelete, group, path, handler, mw...)
+}
+
+func (a *App) Put(group string, path string, handler Handler, mw ...Middleware) {
+	a.Handle(http.MethodPut, group, path, handler, mw...)
+}
+
+func (a *App) Patch(group string, path string, handler Handler, mw ...Middleware) {
+	a.Handle(http.MethodPatch, group, path, handler, mw...)
 }
