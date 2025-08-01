@@ -33,7 +33,7 @@ func NewEvent[T any](eventType string, source string, data T, correlationID, cau
 	return &Event[T]{
 		ID:            uuid.New().String(),
 		Type:          eventType,
-		Time:          time.Now().UTC(),
+		OccurredAt:    time.Now().UTC(),
 		Data:          data,
 		CorrelationID: correlationID,
 		CausationID:   causationID,
