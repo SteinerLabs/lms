@@ -11,115 +11,126 @@ The Auth Service is responsible for user authentication, authorization, and iden
 The User model represents the authentication and authorization information for a user.
 
 ```go
-type User struct {
-    ID              string    `json:"id" db:"id"`                           // Unique identifier
-    Email           string    `json:"email" db:"email"`                     // User's email address
-    PasswordHash    string    `json:"-" db:"password_hash"`                 // Hashed password
-    FirstName       string    `json:"first_name" db:"first_name"`           // User's first name
-    LastName        string    `json:"last_name" db:"last_name"`             // User's last name
-    Active          bool      `json:"active" db:"active"`                   // Whether the user is active
-    EmailVerified   bool      `json:"email_verified" db:"email_verified"`   // Whether the email is verified
-    MFAEnabled      bool      `json:"mfa_enabled" db:"mfa_enabled"`         // Whether MFA is enabled
-    LastLogin       time.Time `json:"last_login" db:"last_login"`           // Last login timestamp
-    FailedAttempts  int       `json:"failed_attempts" db:"failed_attempts"` // Number of failed login attempts
-    Locked          bool      `json:"locked" db:"locked"`                   // Whether the account is locked
-    LockExpiry      time.Time `json:"lock_expiry" db:"lock_expiry"`         // When the lock expires
-    CreatedAt       time.Time `json:"created_at" db:"created_at"`           // Creation timestamp
-    UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`           // Last update timestamp
+type AuthUser struct {
+    ID              string // uuidv6 or ulid
+    Email           string
+    PasswordHash    string
+    Active          bool
+    EmailVerified   bool
+    LastLogin       time.Time
+    CreatedAt       time.Time
+    UpdatedAt       time.Time
 }
 ```
 
-### Role
+### RefreshToken
 
-The Role model represents a set of permissions that can be assigned to users.
+The RefreshToken model represents a refresh token for a user
 
 ```go
-type Role struct {
-    ID          string    `json:"id" db:"id"`               // Unique identifier
-    Name        string    `json:"name" db:"name"`           // Role name
-    Description string    `json:"description" db:"description"` // Role description
-    CreatedAt   time.Time `json:"created_at" db:"created_at"`   // Creation timestamp
-    UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`   // Last update timestamp
+type RefreshToken struct {
+	ID string
+	UserId string
+	TokenHash string // SHA-256 hash of the token
+	ExpiresAt time.Time
+	CreatedAt time.Time
+	RevokedAt time.Time
+	UserAgent string
+	IpAddress string
 }
+
+// GenerateSecureToken returns a base64 URL-safe random string
+func GenerateSecureToken(length int) (string, error) {
+    bytes := make([]byte, length)
+    _, err := rand.Read(bytes)
+    if err != nil {
+        return "", err
+    }
+    return base64.RawURLEncoding.EncodeToString(bytes), nil
+}
+
+// HashToken hashes a token using SHA256
+func HashToken(token string) string {
+    h := sha256.Sum256([]byte(token))
+    return base64.RawURLEncoding.EncodeToString(h[:])
+}
+
+func CreateRefreshToken(db *sql.DB, userID string, userAgent, ip string) (string, error) {
+    rawToken, err := GenerateSecureToken(32) // 256-bit
+    if err != nil {
+        return "", err
+    }
+
+    hashed := HashToken(rawToken)
+    expiresAt := time.Now().Add(30 * 24 * time.Hour) // 30 days
+    id := uuid.New().String()
+
+    _, err = db.Exec(`
+            INSERT INTO refresh_tokens (id, user_id, token_hash, expires_at, created_at, user_agent, ip_address)
+            VALUES ($1, $2, $3, $4, NOW(), $5, $6)
+        `, id, userID, hashed, expiresAt, userAgent, ip)
+    if err != nil {
+        return "", err
+    }
+
+    // Return plain token (not hashed) to client
+    return rawToken, nil
+}
+
+func RotateRefreshToken(db *sql.DB, userID, providedToken string, userAgent, ip string) (string, string, error) {
+    hashed := HashToken(providedToken)
+    
+    // Lookup existing token
+    var tokenID string
+    var expiresAt time.Time
+    err := db.QueryRow(`
+            SELECT id, expires_at FROM refresh_tokens
+            WHERE user_id = $1 AND token_hash = $2 AND revoked_at IS NULL
+        `, userID, hashed).Scan(&tokenID, &expiresAt)
+    if err != nil {
+        return "", "", fmt.Errorf("invalid refresh token")
+    }
+    
+    if time.Now().After(expiresAt) {
+        return "", "", fmt.Errorf("refresh token expired")
+    }
+    
+    // Revoke old token
+    _, err = db.Exec(`UPDATE refresh_tokens SET revoked_at = NOW() WHERE id = $1`, tokenID)
+    if err != nil {
+        return "", "", err
+    }
+    
+    // Create a new refresh token
+    newRefreshToken, err := CreateRefreshToken(db, userID, userAgent, ip)
+    if err != nil {
+        return "", "", err
+    }
+    
+    // Issue a new access token (JWT)
+    newAccessToken, err := IssueAccessToken(userID) // implement JWT creation
+    if err != nil {
+        return "", "", err
+    }
+    
+    return newAccessToken, newRefreshToken, nil
+}
+
 ```
 
-### Permission
+#### Flow
 
-The Permission model represents a specific action that can be performed.
-
-```go
-type Permission struct {
-    ID          string    `json:"id" db:"id"`               // Unique identifier
-    Name        string    `json:"name" db:"name"`           // Permission name
-    Description string    `json:"description" db:"description"` // Permission description
-    Resource    string    `json:"resource" db:"resource"`       // Resource the permission applies to
-    Action      string    `json:"action" db:"action"`           // Action (create, read, update, delete)
-    CreatedAt   time.Time `json:"created_at" db:"created_at"`   // Creation timestamp
-    UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`   // Last update timestamp
-}
-```
-
-### UserRole
-
-The UserRole model represents the many-to-many relationship between users and roles.
-
-```go
-type UserRole struct {
-    ID        string    `json:"id" db:"id"`             // Unique identifier
-    UserID    string    `json:"user_id" db:"user_id"`       // User ID
-    RoleID    string    `json:"role_id" db:"role_id"`       // Role ID
-    CreatedAt time.Time `json:"created_at" db:"created_at"` // Creation timestamp
-    UpdatedAt time.Time `json:"updated_at" db:"updated_at"` // Last update timestamp
-}
-```
-
-### RolePermission
-
-The RolePermission model represents the many-to-many relationship between roles and permissions.
-
-```go
-type RolePermission struct {
-    ID           string    `json:"id" db:"id"`                   // Unique identifier
-    RoleID       string    `json:"role_id" db:"role_id"`           // Role ID
-    PermissionID string    `json:"permission_id" db:"permission_id"` // Permission ID
-    CreatedAt    time.Time `json:"created_at" db:"created_at"`       // Creation timestamp
-    UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`       // Last update timestamp
-}
-```
-
-### Session
-
-The Session model represents a user's authenticated session.
-
-```go
-type Session struct {
-    ID           string    `json:"id" db:"id"`                   // Unique identifier
-    UserID       string    `json:"user_id" db:"user_id"`           // User ID
-    Token        string    `json:"token" db:"token"`               // Session token
-    RefreshToken string    `json:"refresh_token" db:"refresh_token"` // Refresh token
-    ExpiresAt    time.Time `json:"expires_at" db:"expires_at"`       // Expiration timestamp
-    IP           string    `json:"ip" db:"ip"`                     // IP address
-    UserAgent    string    `json:"user_agent" db:"user_agent"`       // User agent
-    CreatedAt    time.Time `json:"created_at" db:"created_at"`       // Creation timestamp
-    UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`       // Last update timestamp
-}
-```
-
-### MFADevice
-
-The MFADevice model represents a multi-factor authentication device.
-
-```go
-type MFADevice struct {
-    ID        string    `json:"id" db:"id"`             // Unique identifier
-    UserID    string    `json:"user_id" db:"user_id"`       // User ID
-    Type      string    `json:"type" db:"type"`           // Device type (app, sms, email)
-    Secret    string    `json:"-" db:"secret"`           // Secret key
-    Verified  bool      `json:"verified" db:"verified"`     // Whether the device is verified
-    CreatedAt time.Time `json:"created_at" db:"created_at"` // Creation timestamp
-    UpdatedAt time.Time `json:"updated_at" db:"updated_at"` // Last update timestamp
-}
-```
+1. User logs in -> AuthService:
+   - Issues short-lived JWT access token (e.g., 15min)
+   - Generates a long-lived refresh token (random 256-bit value)
+   - Hases and stores it in DB
+2. When access token expires:
+    - Client sends refresh token to AuthService
+    - AuthService validates token (hash lookup and expiry/revokation)
+    - Issues new access token (possibly a new refresh token with rotation)
+    - Optionally invalidates old refresh token
+3. On logout:
+   - Delete or mark refresh token revoked in DB
 
 ### PasswordReset
 
@@ -139,23 +150,12 @@ type PasswordReset struct {
 
 ## Relationships
 
-- A User can have multiple Roles through UserRole
-- A Role can have multiple Permissions through RolePermission
-- A User can have multiple Sessions
-- A User can have multiple MFADevices
 - A User can have multiple PasswordResets
 
 ## Database Schema
 
 The Auth Service uses PostgreSQL for data storage. The schema includes the following tables:
 
-- users
-- roles
-- permissions
-- user_roles
-- role_permissions
-- sessions
-- mfa_devices
 - password_resets
 
 ## Events
@@ -165,28 +165,34 @@ The Auth Service publishes the following events:
 ### UserCreated
 
 ```go
-type UserCreated struct {
-    ID        string    `json:"id"`
-    Email     string    `json:"email"`
-    FirstName string    `json:"first_name"`
-    LastName  string    `json:"last_name"`
-    CreatedAt time.Time `json:"created_at"`
+type AuthUserCreated struct {
+    ID        string
+    Email     string
+	Username  string
+	DisplayName string
+    FirstName string
+    LastName  string
+	Bio string
+	AvatarURL string
+	Location string
+	Links []Link
+	Prefrences UserPrefrences
+    CreatedAt time.Time
 }
 ```
 
-### UserUpdated
+### AuthUserUpdated
 
 ```go
-type UserUpdated struct {
-    ID        string    `json:"id"`
-    Email     string    `json:"email"`
-    FirstName string    `json:"first_name"`
-    LastName  string    `json:"last_name"`
-    UpdatedAt time.Time `json:"updated_at"`
+type AuthUserUpdated struct {
+    ID string
+    Email string
+	Username string
+    UpdatedAt time.Time
 }
 ```
 
-### UserDeleted
+### AuthUserDeleted
 
 ```go
 type UserDeleted struct {
@@ -200,7 +206,6 @@ type UserDeleted struct {
 ```go
 type UserLoggedIn struct {
     ID        string    `json:"id"`
-    Email     string    `json:"email"`
     IP        string    `json:"ip"`
     UserAgent string    `json:"user_agent"`
     LoginAt   time.Time `json:"login_at"`

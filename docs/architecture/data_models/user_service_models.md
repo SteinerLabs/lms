@@ -10,38 +10,46 @@ The User Service is responsible for managing user profiles, accounts, and relati
 
 The UserProfile model represents a user's profile information.
 
-```
+```go
 type UserProfile struct {
-    ID              string    // Unique identifier
-    UserID          string    // ID from Auth Service
-    Username        string    // User's username
-    DisplayName     string    // User's display name
-    Bio             string    // User's biography
-    AvatarURL       string    // URL to user's avatar
-    CoverImageURL   string    // URL to user's cover image
-    Location        string    // User's location
-    Website         string    // User's website
-    SocialLinks     []SocialLink // User's social media links
-    Preferences     UserPreferences // User's preferences
-    Metadata        map[string]interface{} // Additional metadata
-    CreatedAt       time.Time // Creation timestamp
-    UpdatedAt       time.Time // Last update timestamp
+    ID string
+    DisplayName string
+	FirstName string
+	LastName string
+    Bio string
+    AvatarURL string
+    Location string
+    Links []Link
+    Preferences UserPreferences
+    CreatedAt time.Time
+    UpdatedAt time.Time
 }
 ```
 
-### SocialLink
+### AuthUsernameCache
 
-The SocialLink model represents a user's social media link.
+The AuthUsernameCache model maps userIds to Usernames to avoid requests
 
+```go
+type AuthUsernamesCache struct {
+	UserID string
+	Username string
+	UpdatedAt time.Time
+}
 ```
-type SocialLink struct {
-    ID          string    // Unique identifier
-    UserID      string    // User ID
-    Platform    string    // Social media platform
-    URL         string    // Profile URL
-    Username    string    // Username on the platform
-    CreatedAt   time.Time // Creation timestamp
-    UpdatedAt   time.Time // Last update timestamp
+
+### Link
+
+The Link model represents a user's links to show in his profile.
+
+```go
+type Link struct {
+    ID          string
+    UserID      string
+    Text        string
+    URL         string
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
 }
 ```
 
@@ -49,19 +57,16 @@ type SocialLink struct {
 
 The UserPreferences model represents a user's preferences.
 
-```
+```go
 type UserPreferences struct {
-    ID                  string    // Unique identifier
-    UserID              string    // User ID
-    Language            string    // Preferred language
-    Timezone            string    // Preferred timezone
-    EmailNotifications  bool      // Whether to receive email notifications
-    PushNotifications   bool      // Whether to receive push notifications
-    SMSNotifications    bool      // Whether to receive SMS notifications
-    DarkMode            bool      // Whether to use dark mode
-    AccessibilitySettings map[string]interface{} // Accessibility settings
-    CreatedAt           time.Time // Creation timestamp
-    UpdatedAt           time.Time // Last update timestamp
+    ID string
+    UserID string
+    Language string
+    Timezone  string
+    EmailNotifications  bool
+    DarkMode bool
+    CreatedAt time.Time
+    UpdatedAt time.Time
 }
 ```
 
@@ -69,18 +74,16 @@ type UserPreferences struct {
 
 The Organization model represents an organization that users can belong to.
 
-```
+```go
 type Organization struct {
-    ID              string    // Unique identifier
-    Name            string    // Organization name
-    Description     string    // Organization description
-    LogoURL         string    // URL to organization logo
-    Website         string    // Organization website
-    Industry        string    // Organization industry
-    Size            string    // Organization size
-    Location        string    // Organization location
-    CreatedAt       time.Time // Creation timestamp
-    UpdatedAt       time.Time // Last update timestamp
+    ID              string
+    Name            string
+    Description     string
+    LogoURL         string
+    Website         string
+    Location        string
+    CreatedAt       time.Time
+    UpdatedAt       time.Time
 }
 ```
 
@@ -88,15 +91,15 @@ type Organization struct {
 
 The OrganizationMember model represents a user's membership in an organization.
 
-```
+```go
 type OrganizationMember struct {
-    ID              string    // Unique identifier
-    OrganizationID  string    // Organization ID
-    UserID          string    // User ID
-    Role            string    // Role in the organization
-    JoinedAt        time.Time // When the user joined
-    CreatedAt       time.Time // Creation timestamp
-    UpdatedAt       time.Time // Last update timestamp
+    ID              string
+    OrganizationID  string
+    UserID          string
+    Role            string
+    JoinedAt        time.Time
+    CreatedAt       time.Time
+    UpdatedAt       time.Time
 }
 ```
 
@@ -104,15 +107,15 @@ type OrganizationMember struct {
 
 The Team model represents a team within an organization.
 
-```
+```go
 type Team struct {
-    ID              string    // Unique identifier
-    OrganizationID  string    // Organization ID
-    Name            string    // Team name
-    Description     string    // Team description
-    LogoURL         string    // URL to team logo
-    CreatedAt       time.Time // Creation timestamp
-    UpdatedAt       time.Time // Last update timestamp
+    ID              string
+    OrganizationID  string
+    Name            string
+    Description     string
+    LogoURL         string
+    CreatedAt       time.Time
+    UpdatedAt       time.Time
 }
 ```
 
@@ -120,15 +123,15 @@ type Team struct {
 
 The TeamMember model represents a user's membership in a team.
 
-```
+```go
 type TeamMember struct {
-    ID              string    // Unique identifier
-    TeamID          string    // Team ID
-    UserID          string    // User ID
-    Role            string    // Role in the team
-    JoinedAt        time.Time // When the user joined
-    CreatedAt       time.Time // Creation timestamp
-    UpdatedAt       time.Time // Last update timestamp
+    ID              string
+    TeamID          string
+    UserID          string
+    Role            string
+    JoinedAt        time.Time
+    CreatedAt       time.Time
+    UpdatedAt       time.Time
 }
 ```
 
@@ -136,14 +139,14 @@ type TeamMember struct {
 
 The UserConnection model represents a connection between two users.
 
-```
+```go
 type UserConnection struct {
-    ID              string    // Unique identifier
-    UserID          string    // User ID
-    ConnectedUserID string    // Connected user ID
-    Status          string    // Connection status (pending, accepted, rejected, blocked)
-    CreatedAt       time.Time // Creation timestamp
-    UpdatedAt       time.Time // Last update timestamp
+    ID              string
+    UserID          string
+    ConnectedUserID string
+    Status          string
+    CreatedAt       time.Time
+    UpdatedAt       time.Time
 }
 ```
 
@@ -151,21 +154,20 @@ type UserConnection struct {
 
 The UserActivity model represents a user's activity.
 
-```
+```go
 type UserActivity struct {
-    ID              string    // Unique identifier
-    UserID          string    // User ID
-    Type            string    // Activity type
-    Description     string    // Activity description
-    Metadata        map[string]interface{} // Additional metadata
-    CreatedAt       time.Time // Creation timestamp
+    ID              string
+    UserID          string
+    Type            string
+    Description     string
+    CreatedAt       time.Time
 }
 ```
 
 ## Relationships
 
-- A UserProfile belongs to a User (from Auth Service)
-- A UserProfile has many SocialLinks
+- A UserProfile belongs to a AuthUser (from Auth Service)
+- A UserProfile has many Links
 - A UserProfile has one UserPreferences
 - A User can belong to many Organizations through OrganizationMember
 - A User can belong to many Teams through TeamMember
@@ -179,7 +181,7 @@ type UserActivity struct {
 The User Service uses PostgreSQL for data storage. The schema includes the following tables:
 
 - user_profiles
-- social_links
+- links
 - user_preferences
 - organizations
 - organization_members
@@ -196,7 +198,7 @@ The User Service publishes and consumes the following events:
 
 #### UserProfileCreated
 
-```
+```go
 type UserProfileCreated struct {
     ID          string    // User profile ID
     UserID      string    // User ID from Auth Service
@@ -208,7 +210,7 @@ type UserProfileCreated struct {
 
 #### UserProfileUpdated
 
-```
+```go
 type UserProfileUpdated struct {
     ID          string    // User profile ID
     UserID      string    // User ID from Auth Service
@@ -220,7 +222,7 @@ type UserProfileUpdated struct {
 
 #### OrganizationCreated
 
-```
+```go
 type OrganizationCreated struct {
     ID          string    // Organization ID
     Name        string    // Organization name
@@ -230,7 +232,7 @@ type OrganizationCreated struct {
 
 #### TeamCreated
 
-```
+```go
 type TeamCreated struct {
     ID              string    // Team ID
     OrganizationID  string    // Organization ID
@@ -243,33 +245,6 @@ type TeamCreated struct {
 
 #### UserCreated (from Auth Service)
 
-```
-type UserCreated struct {
-    ID        string    // User ID
-    Email     string    // Email
-    FirstName string    // First name
-    LastName  string    // Last name
-    CreatedAt time.Time // Creation timestamp
-}
-```
-
 #### UserUpdated (from Auth Service)
 
-```
-type UserUpdated struct {
-    ID        string    // User ID
-    Email     string    // Email
-    FirstName string    // First name
-    LastName  string    // Last name
-    UpdatedAt time.Time // Update timestamp
-}
-```
-
 #### UserDeleted (from Auth Service)
-
-```
-type UserDeleted struct {
-    ID        string    // User ID
-    DeletedAt time.Time // Deletion timestamp
-}
-```
