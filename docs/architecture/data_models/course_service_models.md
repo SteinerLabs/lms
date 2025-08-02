@@ -10,7 +10,7 @@ The Course Service is responsible for managing course content, structure, and de
 
 The Course model represents a course in the LMS platform.
 
-```
+```go
 type Course struct {
     ID              string    // Unique identifier
     Title           string    // Course title
@@ -41,7 +41,7 @@ type Course struct {
 
 The Module model represents a module within a course.
 
-```
+```go
 type Module struct {
     ID              string    // Unique identifier
     CourseID        string    // Course ID
@@ -60,7 +60,7 @@ type Module struct {
 
 The Lesson model represents a lesson within a module.
 
-```
+```go
 type Lesson struct {
     ID              string    // Unique identifier
     ModuleID        string    // Module ID
@@ -81,7 +81,7 @@ type Lesson struct {
 
 The LessonContent model represents the content of a lesson.
 
-```
+```go
 type LessonContent struct {
     ID              string    // Unique identifier
     LessonID        string    // Lesson ID
@@ -102,7 +102,7 @@ type LessonContent struct {
 
 The Attachment model represents a file attached to a lesson.
 
-```
+```go
 type Attachment struct {
     ID              string    // Unique identifier
     LessonContentID string    // Lesson content ID
@@ -120,7 +120,7 @@ type Attachment struct {
 
 The Quiz model represents a quiz within a lesson.
 
-```
+```go
 type Quiz struct {
     ID              string    // Unique identifier
     LessonID        string    // Lesson ID
@@ -143,7 +143,7 @@ type Quiz struct {
 
 The QuizQuestion model represents a question within a quiz.
 
-```
+```go
 type QuizQuestion struct {
     ID              string    // Unique identifier
     QuizID          string    // Quiz ID
@@ -164,7 +164,7 @@ type QuizQuestion struct {
 
 The QuizOption model represents an option for a quiz question.
 
-```
+```go
 type QuizOption struct {
     ID              string    // Unique identifier
     QuestionID      string    // Question ID
@@ -179,7 +179,7 @@ type QuizOption struct {
 
 The Assignment model represents an assignment within a lesson.
 
-```
+```go
 type Assignment struct {
     ID              string    // Unique identifier
     LessonID        string    // Lesson ID
@@ -201,7 +201,7 @@ type Assignment struct {
 
 The Rubric model represents a rubric for grading assignments.
 
-```
+```go
 type Rubric struct {
     ID              string    // Unique identifier
     Title           string    // Rubric title
@@ -212,11 +212,78 @@ type Rubric struct {
 }
 ```
 
+#### Example
+
+```go
+// Example of a Coding Assignment Rubric
+rubric := Rubric{
+    ID:          "rb123",
+    Title:       "Code Review Rubric",
+    Description: "Criteria for evaluating code submissions",
+    Criteria: []RubricCriterion{
+        {
+            Title:          "Code Quality",
+            Description:    "Evaluates code organization and readability",
+            PointsPossible: 10,
+            Levels: []RubricLevel{
+                {
+                    Title:       "Excellent",
+                    Description: "Code is well-organized, properly documented, and follows all style guidelines",
+                    Points:      10,
+                },
+                {
+                    Title:       "Good",
+                    Description: "Code is mostly organized with some documentation",
+                    Points:      7,
+                },
+                {
+                    Title:       "Needs Improvement",
+                    Description: "Code is disorganized and lacks proper documentation",
+                    Points:      3,
+                },
+            },
+        },
+        {
+            Title:          "Functionality",
+            Description:    "Evaluates if code works as required",
+            PointsPossible: 15,
+            Levels: []RubricLevel{
+                {
+                    Title:       "Complete",
+                    Description: "All requirements implemented correctly",
+                    Points:      15,
+                },
+                {
+                    Title:       "Partial",
+                    Description: "Most requirements implemented with some issues",
+                    Points:      10,
+                },
+                {
+                    Title:       "Incomplete",
+                    Description: "Major functionality missing or not working",
+                    Points:      5,
+                },
+            },
+        },
+    },
+}
+
+assignment := Assignment{
+    ID:             "asg123",
+    Title:          "Build a REST API",
+    Description:    "Create a RESTful API using Go",
+    PointsPossible: 25,  // Sum of all rubric criteria points
+    RubricID:       "rb123",  // References the rubric above
+    // ...
+}
+
+```
+
 ### RubricCriterion
 
 The RubricCriterion model represents a criterion within a rubric.
 
-```
+```go
 type RubricCriterion struct {
     ID              string    // Unique identifier
     RubricID        string    // Rubric ID
@@ -234,7 +301,7 @@ type RubricCriterion struct {
 
 The RubricLevel model represents a level within a rubric criterion.
 
-```
+```go
 type RubricLevel struct {
     ID              string    // Unique identifier
     CriterionID     string    // Criterion ID
@@ -247,31 +314,11 @@ type RubricLevel struct {
 }
 ```
 
-### Enrollment
-
-The Enrollment model represents a user's enrollment in a course.
-
-```
-type Enrollment struct {
-    ID              string    // Unique identifier
-    CourseID        string    // Course ID
-    UserID          string    // User ID
-    Status          string    // Enrollment status (active, completed, dropped)
-    EnrolledAt      time.Time // When the user enrolled
-    CompletedAt     time.Time // When the user completed the course
-    ExpiresAt       time.Time // When the enrollment expires
-    PaymentID       string    // ID of associated payment
-    Metadata        map[string]interface{} // Additional metadata
-    CreatedAt       time.Time // Creation timestamp
-    UpdatedAt       time.Time // Last update timestamp
-}
-```
-
 ### LearningPath
 
 The LearningPath model represents a sequence of courses.
 
-```
+```go
 type LearningPath struct {
     ID              string    // Unique identifier
     Title           string    // Learning path title
@@ -291,7 +338,7 @@ type LearningPath struct {
 
 The LearningPathCourse model represents a course within a learning path.
 
-```
+```go
 type LearningPathCourse struct {
     ID              string    // Unique identifier
     LearningPathID  string    // Learning path ID
@@ -355,7 +402,7 @@ The Course Service publishes and consumes the following events:
 
 #### CourseCreated
 
-```
+```go
 type CourseCreated struct {
     ID          string    // Course ID
     Title       string    // Course title
@@ -366,7 +413,7 @@ type CourseCreated struct {
 
 #### CoursePublished
 
-```
+```go
 type CoursePublished struct {
     ID          string    // Course ID
     Title       string    // Course title
@@ -377,7 +424,7 @@ type CoursePublished struct {
 
 #### CourseUpdated
 
-```
+```go
 type CourseUpdated struct {
     ID          string    // Course ID
     Title       string    // Course title
@@ -387,7 +434,7 @@ type CourseUpdated struct {
 
 #### UserEnrolled
 
-```
+```go
 type UserEnrolled struct {
     ID          string    // Enrollment ID
     CourseID    string    // Course ID
@@ -398,7 +445,7 @@ type UserEnrolled struct {
 
 #### EnrollmentCompleted
 
-```
+```go
 type EnrollmentCompleted struct {
     ID          string    // Enrollment ID
     CourseID    string    // Course ID
@@ -411,7 +458,7 @@ type EnrollmentCompleted struct {
 
 #### UserCreated (from Auth Service)
 
-```
+```go
 type UserCreated struct {
     ID        string    // User ID
     Email     string    // Email
@@ -423,7 +470,7 @@ type UserCreated struct {
 
 #### PaymentCompleted (from Billing Service)
 
-```
+```go
 type PaymentCompleted struct {
     ID          string    // Payment ID
     UserID      string    // User ID

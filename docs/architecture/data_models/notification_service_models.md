@@ -10,7 +10,7 @@ The Notification Service is responsible for managing and delivering notification
 
 The Notification model represents a notification sent to a user.
 
-```
+```go
 type Notification struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -20,7 +20,6 @@ type Notification struct {
     Priority        string    // Priority (low, normal, high, urgent)
     Status          string    // Status (pending, sent, delivered, read, failed)
     ReadAt          time.Time // When the notification was read
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -30,7 +29,7 @@ type Notification struct {
 
 The NotificationTemplate model represents a template for generating notifications.
 
-```
+```go
 type NotificationTemplate struct {
     ID              string    // Unique identifier
     Name            string    // Template name
@@ -39,7 +38,6 @@ type NotificationTemplate struct {
     Subject         string    // Subject template
     Content         string    // Content template
     Variables       []string  // Variables used in the template
-    Metadata        map[string]interface{} // Additional metadata
     Active          bool      // Whether the template is active
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
@@ -50,7 +48,7 @@ type NotificationTemplate struct {
 
 The NotificationChannel model represents a channel for delivering notifications.
 
-```
+```go
 type NotificationChannel struct {
     ID              string    // Unique identifier
     Type            string    // Channel type (email, push, sms, in_app)
@@ -67,7 +65,7 @@ type NotificationChannel struct {
 
 The NotificationDelivery model represents a delivery attempt for a notification.
 
-```
+```go
 type NotificationDelivery struct {
     ID              string    // Unique identifier
     NotificationID  string    // Notification ID
@@ -75,7 +73,6 @@ type NotificationDelivery struct {
     Status          string    // Delivery status (pending, sent, delivered, failed)
     ErrorMessage    string    // Error message if failed
     DeliveredAt     time.Time // When the notification was delivered
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -85,7 +82,7 @@ type NotificationDelivery struct {
 
 The UserPreference model represents a user's notification preferences.
 
-```
+```go
 type UserPreference struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -95,7 +92,6 @@ type UserPreference struct {
     Frequency       string    // Notification frequency (immediate, daily, weekly)
     QuietHoursStart string    // Quiet hours start time (HH:MM)
     QuietHoursEnd   string    // Quiet hours end time (HH:MM)
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -105,7 +101,7 @@ type UserPreference struct {
 
 The EmailProvider model represents an email service provider.
 
-```
+```go
 type EmailProvider struct {
     ID              string    // Unique identifier
     Name            string    // Provider name
@@ -121,7 +117,7 @@ type EmailProvider struct {
 
 The PushProvider model represents a push notification service provider.
 
-```
+```go
 type PushProvider struct {
     ID              string    // Unique identifier
     Name            string    // Provider name
@@ -137,7 +133,7 @@ type PushProvider struct {
 
 The SMSProvider model represents an SMS service provider.
 
-```
+```go
 type SMSProvider struct {
     ID              string    // Unique identifier
     Name            string    // Provider name
@@ -153,7 +149,7 @@ type SMSProvider struct {
 
 The UserDevice model represents a user's device for push notifications.
 
-```
+```go
 type UserDevice struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -173,7 +169,7 @@ type UserDevice struct {
 
 The NotificationBatch model represents a batch of notifications to be sent.
 
-```
+```go
 type NotificationBatch struct {
     ID              string    // Unique identifier
     Type            string    // Batch type (immediate, scheduled, campaign)
@@ -183,7 +179,6 @@ type NotificationBatch struct {
     FailureCount    int       // Number of failed deliveries
     ScheduledAt     time.Time // When the batch is scheduled to be sent
     CompletedAt     time.Time // When the batch was completed
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -193,7 +188,7 @@ type NotificationBatch struct {
 
 The NotificationCampaign model represents a campaign for sending notifications to multiple users.
 
-```
+```go
 type NotificationCampaign struct {
     ID              string    // Unique identifier
     Name            string    // Campaign name
@@ -207,7 +202,6 @@ type NotificationCampaign struct {
     SentCount       int       // Number of notifications sent
     DeliveredCount  int       // Number of notifications delivered
     ReadCount       int       // Number of notifications read
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -217,7 +211,7 @@ type NotificationCampaign struct {
 
 The NotificationEvent model represents an event that can trigger notifications.
 
-```
+```go
 type NotificationEvent struct {
     ID              string    // Unique identifier
     Name            string    // Event name
@@ -226,7 +220,6 @@ type NotificationEvent struct {
     Type            string    // Event type
     TemplateID      string    // Template ID
     Active          bool      // Whether the event is active
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -236,7 +229,7 @@ type NotificationEvent struct {
 
 The NotificationLog model represents a log of notification activities.
 
-```
+```go
 type NotificationLog struct {
     ID              string    // Unique identifier
     NotificationID  string    // Notification ID
@@ -244,7 +237,6 @@ type NotificationLog struct {
     Action          string    // Action (created, sent, delivered, read, failed)
     ChannelType     string    // Channel type (email, push, sms, in_app)
     Details         string    // Additional details
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
 }
 ```

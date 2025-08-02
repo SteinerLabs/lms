@@ -10,7 +10,7 @@ The Billing Service is responsible for managing payments, subscriptions, invoici
 
 The Customer model represents a billing customer in the system.
 
-```
+```go
 type Customer struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -23,7 +23,6 @@ type Customer struct {
     TaxID           string    // Tax ID
     Currency        string    // Preferred currency
     Status          string    // Customer status (active, inactive)
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -33,7 +32,7 @@ type Customer struct {
 
 The Address model represents a physical address.
 
-```
+```go
 type Address struct {
     ID              string    // Unique identifier
     Line1           string    // Address line 1
@@ -51,7 +50,7 @@ type Address struct {
 
 The PaymentMethod model represents a payment method associated with a customer.
 
-```
+```go
 type PaymentMethod struct {
     ID              string    // Unique identifier
     CustomerID      string    // Customer ID
@@ -64,7 +63,6 @@ type PaymentMethod struct {
     ExpiryYear      int       // Expiry year for cards
     Brand           string    // Card brand (visa, mastercard, etc.)
     BillingAddress  Address   // Billing address
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -74,7 +72,7 @@ type PaymentMethod struct {
 
 The Product model represents a product that can be purchased.
 
-```
+```go
 type Product struct {
     ID              string    // Unique identifier
     ExternalID      string    // External ID (e.g., Stripe product ID)
@@ -82,7 +80,6 @@ type Product struct {
     Description     string    // Product description
     Type            string    // Product type (course, subscription, etc.)
     Active          bool      // Whether the product is active
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -92,7 +89,7 @@ type Product struct {
 
 The Price model represents a price for a product.
 
-```
+```go
 type Price struct {
     ID              string    // Unique identifier
     ProductID       string    // Product ID
@@ -104,7 +101,6 @@ type Price struct {
     Recurring       PriceRecurring // Recurring details if applicable
     Type            string    // Price type (one_time, recurring)
     Active          bool      // Whether the price is active
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -114,7 +110,7 @@ type Price struct {
 
 The TieredPrice model represents a tier in a tiered pricing model.
 
-```
+```go
 type TieredPrice struct {
     ID              string    // Unique identifier
     PriceID         string    // Price ID
@@ -130,7 +126,7 @@ type TieredPrice struct {
 
 The PriceRecurring model represents recurring details for a price.
 
-```
+```go
 type PriceRecurring struct {
     ID              string    // Unique identifier
     PriceID         string    // Price ID
@@ -148,7 +144,7 @@ type PriceRecurring struct {
 
 The Coupon model represents a discount coupon.
 
-```
+```go
 type Coupon struct {
     ID              string    // Unique identifier
     ExternalID      string    // External ID (e.g., Stripe coupon ID)
@@ -165,7 +161,6 @@ type Coupon struct {
     ValidFrom       time.Time // Valid from timestamp
     ValidUntil      time.Time // Valid until timestamp
     Active          bool      // Whether the coupon is active
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -175,7 +170,7 @@ type Coupon struct {
 
 The Subscription model represents a recurring subscription.
 
-```
+```go
 type Subscription struct {
     ID                  string    // Unique identifier
     CustomerID          string    // Customer ID
@@ -193,7 +188,6 @@ type Subscription struct {
     DefaultPaymentMethodID string // Default payment method ID
     LatestInvoiceID     string    // Latest invoice ID
     NextBillingDate     time.Time // Next billing date
-    Metadata            map[string]interface{} // Additional metadata
     CreatedAt           time.Time // Creation timestamp
     UpdatedAt           time.Time // Last update timestamp
 }
@@ -203,7 +197,7 @@ type Subscription struct {
 
 The Invoice model represents an invoice for a customer.
 
-```
+```go
 type Invoice struct {
     ID                  string    // Unique identifier
     CustomerID          string    // Customer ID
@@ -226,7 +220,6 @@ type Invoice struct {
     ReceiptURL          string    // Receipt URL
     InvoicePDF          string    // Invoice PDF URL
     Lines               []InvoiceLine // Invoice lines
-    Metadata            map[string]interface{} // Additional metadata
     CreatedAt           time.Time // Creation timestamp
     UpdatedAt           time.Time // Last update timestamp
 }
@@ -236,7 +229,7 @@ type Invoice struct {
 
 The InvoiceLine model represents a line item on an invoice.
 
-```
+```go
 type InvoiceLine struct {
     ID              string    // Unique identifier
     InvoiceID       string    // Invoice ID
@@ -253,7 +246,6 @@ type InvoiceLine struct {
     PeriodStart     time.Time // Period start
     PeriodEnd       time.Time // Period end
     Proration       bool      // Whether this is a proration
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -263,7 +255,7 @@ type InvoiceLine struct {
 
 The Payment model represents a payment made by a customer.
 
-```
+```go
 type Payment struct {
     ID              string    // Unique identifier
     CustomerID      string    // Customer ID
@@ -277,7 +269,6 @@ type Payment struct {
     ReceiptEmail    string    // Receipt email
     ReceiptURL      string    // Receipt URL
     ErrorMessage    string    // Error message if failed
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -287,7 +278,7 @@ type Payment struct {
 
 The Refund model represents a refund of a payment.
 
-```
+```go
 type Refund struct {
     ID              string    // Unique identifier
     PaymentID       string    // Payment ID
@@ -298,7 +289,6 @@ type Refund struct {
     Reason          string    // Refund reason
     Description     string    // Refund description
     ReceiptURL      string    // Receipt URL
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -308,7 +298,7 @@ type Refund struct {
 
 The Tax model represents a tax configuration.
 
-```
+```go
 type Tax struct {
     ID              string    // Unique identifier
     Name            string    // Tax name
@@ -318,7 +308,6 @@ type Tax struct {
     Country         string    // Country code
     State           string    // State/Province code
     Active          bool      // Whether the tax is active
-    Metadata        map[string]interface{} // Additional metadata
     CreatedAt       time.Time // Creation timestamp
     UpdatedAt       time.Time // Last update timestamp
 }
@@ -328,7 +317,7 @@ type Tax struct {
 
 The TaxRate model represents a tax rate applied to a product.
 
-```
+```go
 type TaxRate struct {
     ID              string    // Unique identifier
     TaxID           string    // Tax ID

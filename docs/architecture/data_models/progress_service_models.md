@@ -10,7 +10,7 @@ The Progress Service is responsible for tracking, storing, and reporting on lear
 
 The UserProgress model represents a user's overall progress across all courses.
 
-```
+```go
 type UserProgress struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -34,7 +34,7 @@ type UserProgress struct {
 
 The CourseProgress model represents a user's progress in a specific course.
 
-```
+```go
 type CourseProgress struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -63,7 +63,7 @@ type CourseProgress struct {
 
 The ModuleProgress model represents a user's progress in a specific module.
 
-```
+```go
 type ModuleProgress struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -89,7 +89,7 @@ type ModuleProgress struct {
 
 The LessonProgress model represents a user's progress in a specific lesson.
 
-```
+```go
 type LessonProgress struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -113,7 +113,7 @@ type LessonProgress struct {
 
 The QuizAttempt model represents a user's attempt at a quiz.
 
-```
+```go
 type QuizAttempt struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -141,7 +141,7 @@ type QuizAttempt struct {
 
 The QuizQuestionResponse model represents a user's response to a quiz question.
 
-```
+```go
 type QuizQuestionResponse struct {
     ID              string    // Unique identifier
     QuizAttemptID   string    // Quiz attempt ID
@@ -161,7 +161,7 @@ type QuizQuestionResponse struct {
 
 The AssignmentSubmission model represents a user's submission for an assignment.
 
-```
+```go
 type AssignmentSubmission struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -189,7 +189,7 @@ type AssignmentSubmission struct {
 
 The LearningPathProgress model represents a user's progress in a learning path.
 
-```
+```go
 type LearningPathProgress struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -211,7 +211,7 @@ type LearningPathProgress struct {
 
 The Competency model represents a skill or knowledge area that can be tracked.
 
-```
+```go
 type Competency struct {
     ID              string    // Unique identifier
     Name            string    // Competency name
@@ -227,7 +227,7 @@ type Competency struct {
 
 The UserCompetency model represents a user's progress in a specific competency.
 
-```
+```go
 type UserCompetency struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -245,7 +245,7 @@ type UserCompetency struct {
 
 The CompetencyEvidence model represents evidence of a user's competency.
 
-```
+```go
 type CompetencyEvidence struct {
     ID              string    // Unique identifier
     UserCompetencyID string   // User competency ID
@@ -262,7 +262,7 @@ type CompetencyEvidence struct {
 
 The Achievement model represents an achievement that can be earned by users.
 
-```
+```go
 type Achievement struct {
     ID              string    // Unique identifier
     Name            string    // Achievement name
@@ -280,7 +280,7 @@ type Achievement struct {
 
 The UserAchievement model represents an achievement earned by a user.
 
-```
+```go
 type UserAchievement struct {
     ID              string    // Unique identifier
     UserID          string    // User ID

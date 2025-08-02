@@ -6,28 +6,34 @@ The Analytics Service is responsible for collecting, processing, and providing i
 
 ## Data Models
 
+### ClientMetadata
+
+The ClientMetadata represents a client used to connect to the service
+
+```go
+type ClientMetadata struct {
+	DeviceType string // (desktop, mobile, tablet)
+	Browser string
+	OperatingSystem string
+	UserAgent string
+	IPAddress string
+}
+```
+
 ### UserActivity
 
 The UserActivity model represents a user's activity within the platform.
 
-```
+```go
 type UserActivity struct {
-    ID              string    // Unique identifier
-    UserID          string    // User ID
+    ID              string
+    UserID          string
     ActivityType    string    // Activity type (login, page_view, content_interaction, etc.)
     ResourceType    string    // Resource type (course, lesson, quiz, etc.)
     ResourceID      string    // ID of the resource
     Action          string    // Action performed (view, start, complete, etc.)
     Duration        int       // Duration of the activity in seconds
-    DeviceType      string    // Device type (desktop, mobile, tablet)
-    Browser         string    // Browser used
-    OperatingSystem string    // Operating system used
-    IPAddress       string    // IP address
-    UserAgent       string    // User agent string
-    Referrer        string    // Referrer URL
-    Path            string    // Path accessed
-    QueryParams     map[string]string // Query parameters
-    Metadata        map[string]interface{} // Additional metadata
+    ClientMetadata  ClientMetadata
     CreatedAt       time.Time // Creation timestamp
 }
 ```
@@ -36,7 +42,7 @@ type UserActivity struct {
 
 The PageView model represents a user's view of a page.
 
-```
+```go
 type PageView struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -48,12 +54,7 @@ type PageView struct {
     TimeOnPage      int       // Time spent on page in seconds
     EntryPage       bool      // Whether this was the entry page for the session
     ExitPage        bool      // Whether this was the exit page for the session
-    DeviceType      string    // Device type (desktop, mobile, tablet)
-    Browser         string    // Browser used
-    OperatingSystem string    // Operating system used
-    IPAddress       string    // IP address
-    UserAgent       string    // User agent string
-    Metadata        map[string]interface{} // Additional metadata
+    ClientMetadata  ClientMetadata
     CreatedAt       time.Time // Creation timestamp
 }
 ```
@@ -62,7 +63,7 @@ type PageView struct {
 
 The Session model represents a user's session on the platform.
 
-```
+```go
 type Session struct {
     ID              string    // Unique identifier
     UserID          string    // User ID
@@ -72,16 +73,11 @@ type Session struct {
     PageViews       int       // Number of page views in the session
     EntryPage       string    // Entry page URL
     ExitPage        string    // Exit page URL
-    DeviceType      string    // Device type (desktop, mobile, tablet)
-    Browser         string    // Browser used
-    OperatingSystem string    // Operating system used
-    IPAddress       string    // IP address
-    UserAgent       string    // User agent string
     Referrer        string    // Referrer URL
     UTMSource       string    // UTM source
     UTMMedium       string    // UTM medium
     UTMCampaign     string    // UTM campaign
-    Metadata        map[string]interface{} // Additional metadata
+	ClientMetadata  ClientMetadata
     CreatedAt       time.Time // Creation timestamp
 }
 ```
@@ -90,7 +86,7 @@ type Session struct {
 
 The CourseAnalytics model represents analytics data for a course.
 
-```
+```go
 type CourseAnalytics struct {
     ID                  string    // Unique identifier
     CourseID            string    // Course ID
@@ -106,6 +102,7 @@ type CourseAnalytics struct {
     TotalReviews        int       // Total number of reviews
     Revenue             float64   // Total revenue generated
     Currency            string    // Currency for revenue
+	UpdateCount         int
     UpdatedAt           time.Time // Last update timestamp
     CreatedAt           time.Time // Creation timestamp
 }
@@ -115,7 +112,7 @@ type CourseAnalytics struct {
 
 The ModuleAnalytics model represents analytics data for a module.
 
-```
+```go
 type ModuleAnalytics struct {
     ID                  string    // Unique identifier
     CourseID            string    // Course ID
@@ -134,7 +131,7 @@ type ModuleAnalytics struct {
 
 The LessonAnalytics model represents analytics data for a lesson.
 
-```
+```go
 type LessonAnalytics struct {
     ID                  string    // Unique identifier
     CourseID            string    // Course ID
@@ -156,7 +153,7 @@ type LessonAnalytics struct {
 
 The QuizAnalytics model represents analytics data for a quiz.
 
-```
+```go
 type QuizAnalytics struct {
     ID                  string    // Unique identifier
     CourseID            string    // Course ID
@@ -178,7 +175,7 @@ type QuizAnalytics struct {
 
 The QuestionAnalytics model represents analytics data for a quiz question.
 
-```
+```go
 type QuestionAnalytics struct {
     ID                  string    // Unique identifier
     QuizID              string    // Quiz ID
@@ -199,7 +196,7 @@ type QuestionAnalytics struct {
 
 The AssignmentAnalytics model represents analytics data for an assignment.
 
-```
+```go
 type AssignmentAnalytics struct {
     ID                  string    // Unique identifier
     CourseID            string    // Course ID
@@ -221,7 +218,7 @@ type AssignmentAnalytics struct {
 
 The UserAnalytics model represents analytics data for a user.
 
-```
+```go
 type UserAnalytics struct {
     ID                  string    // Unique identifier
     UserID              string    // User ID
@@ -249,7 +246,7 @@ type UserAnalytics struct {
 
 The OrganizationAnalytics model represents analytics data for an organization.
 
-```
+```go
 type OrganizationAnalytics struct {
     ID                  string    // Unique identifier
     OrganizationID      string    // Organization ID
@@ -275,7 +272,7 @@ type OrganizationAnalytics struct {
 
 The Report model represents a saved report configuration.
 
-```
+```go
 type Report struct {
     ID              string    // Unique identifier
     Name            string    // Report name
@@ -299,7 +296,7 @@ type Report struct {
 
 The ReportSchedule model represents a schedule for a report.
 
-```
+```go
 type ReportSchedule struct {
     ID              string    // Unique identifier
     ReportID        string    // Report ID
@@ -321,7 +318,7 @@ type ReportSchedule struct {
 
 The ReportExecution model represents an execution of a report.
 
-```
+```go
 type ReportExecution struct {
     ID              string    // Unique identifier
     ReportID        string    // Report ID
@@ -340,7 +337,7 @@ type ReportExecution struct {
 
 The Dashboard model represents a dashboard configuration.
 
-```
+```go
 type Dashboard struct {
     ID              string    // Unique identifier
     Name            string    // Dashboard name
@@ -357,7 +354,7 @@ type Dashboard struct {
 
 The DashboardWidget model represents a widget on a dashboard.
 
-```
+```go
 type DashboardWidget struct {
     ID              string    // Unique identifier
     DashboardID     string    // Dashboard ID
@@ -377,7 +374,7 @@ type DashboardWidget struct {
 
 The WidgetPosition model represents the position of a widget on a dashboard.
 
-```
+```go
 type WidgetPosition struct {
     X               int       // X position
     Y               int       // Y position
@@ -442,7 +439,7 @@ The Analytics Service consumes the following events:
 
 #### UserCreated (from Auth Service)
 
-```
+```go
 type UserCreated struct {
     ID        string    // User ID
     Email     string    // Email
@@ -454,7 +451,7 @@ type UserCreated struct {
 
 #### UserLoggedIn (from Auth Service)
 
-```
+```go
 type UserLoggedIn struct {
     ID        string    // User ID
     Email     string    // Email
@@ -466,7 +463,7 @@ type UserLoggedIn struct {
 
 #### UserEnrolled (from Course Service)
 
-```
+```go
 type UserEnrolled struct {
     ID          string    // Enrollment ID
     CourseID    string    // Course ID
@@ -477,7 +474,7 @@ type UserEnrolled struct {
 
 #### CourseCompleted (from Progress Service)
 
-```
+```go
 type CourseCompleted struct {
     UserID          string    // User ID
     CourseID        string    // Course ID
@@ -487,7 +484,7 @@ type CourseCompleted struct {
 
 #### ProgressUpdated (from Progress Service)
 
-```
+```go
 type ProgressUpdated struct {
     UserID          string    // User ID
     CourseID        string    // Course ID
@@ -500,7 +497,7 @@ type ProgressUpdated struct {
 
 #### QuizCompleted (from Progress Service)
 
-```
+```go
 type QuizCompleted struct {
     UserID          string    // User ID
     CourseID        string    // Course ID
@@ -513,7 +510,7 @@ type QuizCompleted struct {
 
 #### AssignmentSubmitted (from Progress Service)
 
-```
+```go
 type AssignmentSubmitted struct {
     UserID          string    // User ID
     CourseID        string    // Course ID
@@ -524,7 +521,7 @@ type AssignmentSubmitted struct {
 
 #### PaymentCompleted (from Billing Service)
 
-```
+```go
 type PaymentCompleted struct {
     ID          string    // Payment ID
     UserID      string    // User ID

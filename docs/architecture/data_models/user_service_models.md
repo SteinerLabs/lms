@@ -63,7 +63,8 @@ type UserPreferences struct {
     UserID string
     Language string
     Timezone  string
-    EmailNotifications  bool
+    EmailNotifications bool
+	PushNotifications bool
     DarkMode bool
     CreatedAt time.Time
     UpdatedAt time.Time
