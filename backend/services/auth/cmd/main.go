@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/SteinerLabs/lms/backend/services/auth/internal/config"
 	"github.com/SteinerLabs/lms/backend/services/auth/internal/repository"
@@ -14,6 +15,11 @@ import (
 )
 
 func main() {
+	fmt.Println("Auth service")
+	for {
+		time.Sleep(10 * time.Second)
+	}
+
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {

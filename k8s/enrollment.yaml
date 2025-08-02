@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enrollment-service
+spec:
+  selector:
+    matchLabels:
+      app: enrollment-service
+  template:
+    metadata:
+      labels:
+        app: enrollment-service
+    spec:
+      containers:
+        - name: enrollment-service
+          image: localhost:54886/enrollment-service
+          env:
+            - name: NATS_URL
+              value: "nats://nats:4222"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enrollment-service
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: enrollment-service

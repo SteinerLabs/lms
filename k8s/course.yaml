@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: course-service
+spec:
+  selector:
+    matchLabels:
+      app: course-service
+  template:
+    metadata:
+      labels:
+        app: course-service
+    spec:
+      containers:
+        - name: course-service
+          image: localhost:54886/course-service
+          env:
+            - name: NATS_URL
+              value: "nats://nats:4222"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: course-service
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: course-service
