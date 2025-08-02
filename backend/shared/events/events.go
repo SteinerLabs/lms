@@ -265,3 +265,205 @@ type NotificationReadEvent struct {
 //
 // // Use the event data
 // fmt.Printf("User created: %s %s (%s)\n", userData.FirstName, userData.LastName, userData.Email)
+
+/*
+// event.go
+package events
+
+import (
+	"encoding/json"
+	"time"
+)
+
+// EventData is the interface that all event payloads must implement
+type EventData interface {
+	EventType() string
+}
+
+// Event represents the base event structure
+type Event struct {
+	ID            string          `json:"id"`
+	Type          string          `json:"type"`
+	TraceID       string          `json:"trace_id"`
+	CorrelationID string          `json:"correlation_id"`
+	CausationID   string          `json:"causation_id"`
+	Source        string          `json:"source"`
+	OccurredAt    time.Time       `json:"occurred_at"`
+	Data          json.RawMessage `json:"data"`
+}
+
+// EventHandler handles a specific event type
+type EventHandler interface {
+	EventType() string
+	Handle(ctx context.Context, data json.RawMessage) error
+}
+
+// TypedEventHandler is a type-safe wrapper for handling specific event types
+type TypedEventHandler[T EventData] struct {
+	handler func(ctx context.Context, data T) error
+}
+
+func NewTypedEventHandler[T EventData](h func(ctx context.Context, data T) error) *TypedEventHandler[T] {
+	return &TypedEventHandler[T]{handler: h}
+}
+
+func (h *TypedEventHandler[T]) EventType() string {
+	var t T
+	return t.EventType()
+}
+
+func (h *TypedEventHandler[T]) Handle(ctx context.Context, data json.RawMessage) error {
+	var typed T
+	if err := json.Unmarshal(data, &typed); err != nil {
+		return err
+	}
+	return h.handler(ctx, typed)
+}
+
+// HandlerRegistry manages event handlers
+type HandlerRegistry struct {
+	handlers map[string][]EventHandler
+}
+
+func NewHandlerRegistry() *HandlerRegistry {
+	return &HandlerRegistry{
+		handlers: make(map[string][]EventHandler),
+	}
+}
+
+func (r *HandlerRegistry) Register(handler EventHandler) {
+	eventType := handler.EventType()
+	if r.handlers[eventType] == nil {
+		r.handlers[eventType] = make([]EventHandler, 0)
+	}
+	r.handlers[eventType] = append(r.handlers[eventType], handler)
+}
+
+// publisher.go
+type Publisher struct {
+	js     nats.JetStreamContext
+	source string
+}
+
+func (p *Publisher) Publish(ctx context.Context, data EventData) error {
+	event := Event{
+		ID:         uuid.New().String(),
+		Type:       data.EventType(),
+		Source:     p.source,
+		OccurredAt: time.Now().UTC(),
+	}
+
+	// Set tracing info
+	event.TraceID = TraceIDFromContext(ctx)
+	if event.TraceID == "" {
+		event.TraceID = uuid.New().String()
+	}
+
+	event.CorrelationID = event.TraceID
+	if v := ctx.Value(ctxCorrelationIDKey); v != nil {
+		event.CorrelationID = v.(string)
+	}
+
+	event.CausationID = event.CorrelationID
+	if v := ctx.Value(ctxCausationIDKey); v != nil {
+		event.CausationID = v.(string)
+	}
+
+	// Marshal the data
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	event.Data = dataBytes
+
+	// Marshal the complete event
+	payload, err := json.Marshal(event)
+	if err != nil {
+		return err
+	}
+
+	_, err = p.js.Publish(event.Type, payload)
+	return err
+}
+
+// consumer.go
+type Consumer struct {
+	js       nats.JetStreamContext
+	db       *sql.DB
+	registry *HandlerRegistry
+	subject  string
+	durable  string
+}
+
+func (c *Consumer) Start(ctx context.Context) error {
+	_, err := c.js.Subscribe(c.subject, func(msg *nats.Msg) {
+		var event Event
+		if err := json.Unmarshal(msg.Data, &event); err != nil {
+			log.Printf("Failed to unmarshal event: %v", err)
+			_ = msg.Nak()
+			return
+		}
+
+		if processed, _ := c.hasProcessed(event.ID); processed {
+			_ = msg.Ack()
+			return
+		}
+
+		handlers, exists := c.registry.handlers[event.Type]
+		if !exists {
+			log.Printf("No handlers registered for event type: %s", event.Type)
+			_ = msg.Ack() // Ack anyway as we don't want to reprocess
+			return
+		}
+
+		ctx = WithEventContext(ctx, event)
+
+		for _, handler := range handlers {
+			if err := handler.Handle(ctx, event.Data); err != nil {
+				log.Printf("Handler failed: %v", err)
+				_ = msg.Nak()
+				return
+			}
+		}
+
+		_ = c.markProcessed(event.ID)
+		_ = msg.Ack()
+	}, nats.Durable(c.durable), nats.ManualAck())
+
+	return err
+}
+
+// Example usage:
+type UserCreated struct {
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
+}
+
+func (e UserCreated) EventType() string {
+	return "user.created"
+}
+
+func Example() {
+	registry := NewHandlerRegistry()
+
+	// Register a handler for UserCreated events
+	registry.Register(NewTypedEventHandler(func(ctx context.Context, data UserCreated) error {
+		// Handle the event
+		log.Printf("User created: %s (%s)", data.UserID, data.Email)
+		return nil
+	}))
+
+	publisher := NewPublisher(js, "user-service")
+	consumer := NewConsumer(js, db, registry, "events.>", "user-consumer")
+
+	// Publishing
+	userData := UserCreated{
+		UserID: "123",
+		Email:  "user@example.com",
+	}
+	err := publisher.Publish(ctx, userData)
+
+	// Start consuming
+	consumer.Start(context.Background())
+}
+*/
