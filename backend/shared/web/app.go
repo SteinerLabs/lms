@@ -3,7 +3,7 @@ package web
 import (
 	"context"
 	"fmt"
-	"github.com/SteinerLabs/lms/libs/log"
+	"github.com/SteinerLabs/lms/backend/shared/log"
 	"github.com/google/uuid"
 	"net/http"
 	"time"

@@ -1,7 +1,6 @@
 go 1.24.4
 
 use (
-	../libs
 	./services/analytics
 	./services/auth
 	./services/billing
