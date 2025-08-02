@@ -4,32 +4,57 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"github.com/nats-io/nats.go"
+	"fmt"
+	"github.com/nats-io/nats.go/jetstream"
 	"log"
+	"time"
 )
 
 type HandlerFunc func(ctx context.Context, event Event[any]) error
 
 type Consumer struct {
-	js      nats.JetStreamContext
+	js      jetstream.JetStream
 	db      *sql.DB
+	stream  string
 	subject string
 	durable string
 }
 
-func NewConsumer(js nats.JetStreamContext, db *sql.DB, subject string, durable string) *Consumer {
+func NewConsumer(js jetstream.JetStream, db *sql.DB, stream string, subject string, durable string) (*Consumer, error) {
+	_, err := js.CreateStream(context.Background(), jetstream.StreamConfig{
+		Name:     stream,
+		Subjects: []string{subject},
+		Storage:  jetstream.MemoryStorage,
+		MaxAge:   24 * time.Hour, // Adjust retention period as needed
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create stream: %w", err)
+	}
+
 	return &Consumer{
 		js:      js,
 		db:      db,
+		stream:  stream,
 		subject: subject,
 		durable: durable,
-	}
+	}, nil
 }
 
 func (c *Consumer) Start(handler HandlerFunc) error {
-	_, err := c.js.Subscribe(c.subject, func(msg *nats.Msg) {
+	consumer, err := c.js.CreateConsumer(context.Background(), c.stream, jetstream.ConsumerConfig{
+		Durable:       c.durable,
+		Name:          c.durable,
+		FilterSubject: c.subject,
+		AckPolicy:     jetstream.AckExplicitPolicy,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = consumer.Consume(func(msg jetstream.Msg) {
+		log.Printf("Received message: %s", msg.Data())
 		var e Event[any]
-		if err := json.Unmarshal(msg.Data, &e); err != nil {
+		if err := json.Unmarshal(msg.Data(), &e); err != nil {
 			log.Printf("Failed to unmarshal event: %v", err)
 			err := msg.Nak()
 			if err != nil {
@@ -58,13 +83,19 @@ func (c *Consumer) Start(handler HandlerFunc) error {
 			return
 		}
 
-		_ = c.markProcessed(e.ID)
+		err = c.markProcessed(e.ID)
+		if err != nil {
+			log.Printf("Failed to mark event as processed: %v", err)
+		}
 		err := msg.Ack()
 		if err != nil {
 			log.Printf("Failed to ack message: %v", err)
 		}
-	}, nats.Durable(c.durable), nats.ManualAck())
-	return err
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Consumer) hasProcessed(id string) (bool, error) {
@@ -74,6 +105,7 @@ func (c *Consumer) hasProcessed(id string) (bool, error) {
 }
 
 func (c *Consumer) markProcessed(id string) error {
+	log.Printf("Marking event as processed: %s", id)
 	_, err := c.db.Exec("INSERT INTO processed_events(event_id) VALUES($1) ON CONFLICT DO NOTHING", id)
 	return err
 }

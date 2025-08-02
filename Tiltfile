@@ -1,18 +1,9 @@
 allow_k8s_contexts('minikube')
 
-k8s_yaml(['k8s/nats.yaml', 'k8s/nginx.yaml'])
-
-local_resource(
-    'build-frontend',
-    'cd frontend && npm run build',
-    deps=['frontend/src']
-)
-
-k8s_resource(
-    'nginx-dep',
-    resource_deps=['build-frontend'],
-    port_forwards='8080:80'
-)
+k8s_yaml([
+    'k8s/nats.yaml',
+    'k8s/postgres-user.yaml'
+])
 
 def build_service(name):
     docker_build(
@@ -41,4 +32,9 @@ for service in services:
 k8s_resource(
     'nats',
     port_forwards=['4222:4222', '8222:8222']
+)
+
+k8s_resource(
+    'postgres-user',
+    port_forwards='5432:5432'
 )

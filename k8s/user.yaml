@@ -17,6 +17,26 @@ spec:
           env:
             - name: NATS_URL
               value: "nats://nats:4222"
+            - name: DB_HOST
+              value: "postgres-user"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-user-config
+                  key: POSTGRES_DB
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-user-config
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-user-secret
+                  key: POSTGRES_PASSWORD
+
 ---
 apiVersion: v1
 kind: Service
